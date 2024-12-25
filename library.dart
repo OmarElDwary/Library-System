@@ -18,6 +18,8 @@ class Library {
     } else {
       book.borrowed = true;
       book.borrowedBy = user.name;
+      borrowedBooks[book] = user;
+      user.borrowedBooks.add(book);
       return 'Book Borrowed succesfully';
     }
   }
@@ -31,12 +33,22 @@ class Library {
     }).toList();
   }
 
-  void returnBook(Books book) {
+  void returnBook(Books book, Users user) {
     book.borrowed = false;
+    user.borrowedBooks.remove(book);
   }
 
   List getBookDetails(Books book) {
     return [book.id, book.title, book.borrowed];
+  }
+
+  String checkAvailability(String bookName) {
+    for (var book in books) {
+      if (book.title == bookName) {
+        return book.borrowed ? 'Not available' : 'Available';
+      }
+    }
+    return 'This book isnt in the library';
   }
 }
 
@@ -48,18 +60,25 @@ class Books {
   Books(this.id, this.title,
       [this.borrowed = false]); // set the default of borrowed to be false
 
-  String checkAvailability(String bookName) {
-    return borrowed ? 'Not Available' : 'Available';
-  }
-
   @override
   String toString() {
-    return 'Book ID: $id, Book title: $title, Available: $borrowed';
+    bool available = borrowed ? false : true;
+    return 'Book ID: $id, Book title: $title, Available: $available';
   }
 }
 
 class Users {
   int id;
   String name;
+  List<Books> borrowedBooks = [];
   Users(this.id, this.name);
+
+  List myBooks() {
+    return borrowedBooks;
+  }
+
+  @override
+  String toString() {
+    return 'User Id: $id, Name: $name';
+  }
 }
